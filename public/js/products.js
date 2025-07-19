@@ -36,3 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+function confirmDelete(productId) {
+    if (confirm('Tem certeza que deseja excluir este produto?')) {
+        document.getElementById('delete-form-' + productId).submit();
+    }
+}

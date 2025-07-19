@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\ProductVariation;
+use App\Models\Variation;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +12,11 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return 'ok';die;
+        $products = Product::with(['inventory', 'variations.inventory'])
+            ->orderBy('name')
+            ->paginate(10);
+
+        return view('products.index', compact('products'));
     }
 
     public function create()
@@ -102,7 +106,7 @@ class ProductController extends Controller
      */
     protected function createProductVariation(Product $product, array $variationData): void
     {
-        $variation = ProductVariation::create([
+        $variation = Variation::create([
             'product_id' => $product->id,
             'name' => $variationData['name'],
             'price_adjustment' => $variationData['price_adjustment'] ?? 0
