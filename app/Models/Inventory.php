@@ -13,9 +13,7 @@ class Inventory extends Model
     protected $fillable = [
         'product_id',
         'variation_id',
-        'warehouse_id',
         'quantity',
-        'low_stock_threshold'
     ];
 
     public function product(): BelongsTo
@@ -25,11 +23,7 @@ class Inventory extends Model
 
     public function variation(): BelongsTo
     {
-        return $this->belongsTo(ProductVariation::class);
+        return $this->belongsTo(Variation::class);
     }
 
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
 }

@@ -12,15 +12,13 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'coupon_id',
         'subtotal',
-        'discount',
-        'tax',
-        'shipping',
         'total',
-        'status',
-        'notes'
+        'discount',
+        'shipping',
+        'zip_code',
+        'status'
     ];
 
     public function user(): BelongsTo

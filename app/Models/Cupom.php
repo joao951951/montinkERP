@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Coupon extends Model
 {
@@ -22,13 +21,4 @@ class Coupon extends Model
         'active'
     ];
 
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class);
-    }
-
-    public function couponUsages(): HasMany
-    {
-        return $this->hasMany(CouponUsage::class);
-    }
 }

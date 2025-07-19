@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class ProductVariation extends Model
+class Variation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'product_id',
         'name',
-        'sku',
         'price_adjustment'
     ];
 
@@ -26,10 +25,5 @@ class ProductVariation extends Model
     public function inventory(): HasOne
     {
         return $this->hasOne(Inventory::class);
-    }
-
-    public function orderItems(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
     }
 }

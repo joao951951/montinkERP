@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->foreignId('variation_id')->nullable()->constrained('product_variations')->onDelete('cascade');
+            $table->foreignId('variation_id')->nullable()->constrained('variations')->onDelete('cascade');
             $table->integer('quantity')->default(0);
-            $table->integer('low_stock_threshold')->nullable();
             $table->timestamps();
             
             $table->unique(['product_id', 'variation_id']);
