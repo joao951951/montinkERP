@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') - Sistema de Produtos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @stack('styles')
@@ -36,6 +36,14 @@
                                 <i class="bi bi-clipboard-data"></i> Estoque
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('cart.view') }}">
+                                <i class="bi bi-cart"></i> Carrinho
+                                @if(count(session('cart', [])))
+                                    <span class="badge bg-danger">{{ count(session('cart', [])) }}</span>
+                                @endif
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -49,9 +57,7 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- JS Personalizado -->
+    <script src="{{ asset('js/bootstrap/bootstrap.bundle.min.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
-use App\Models\ProductVariation;
+use App\Models\Variation;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\DB;
 
@@ -122,9 +122,9 @@ class ProductService
     /**
      * Update an existing variation
      */
-    private function updateExistingVariation(array $variationData): ProductVariation
+    private function updateExistingVariation(array $variationData): Variation
     {
-        $variation = ProductVariation::findOrFail($variationData['id']);
+        $variation = Variation::findOrFail($variationData['id']);
         $variation->update([
             'name' => $variationData['name'],
             'price_adjustment' => $variationData['price_adjustment'] ?? 0
@@ -135,9 +135,9 @@ class ProductService
     /**
      * Creates a new variation
      */
-    private function createNewVariation(Product $product, array $variationData): ProductVariation
+    private function createNewVariation(Product $product, array $variationData): Variation
     {
-        return ProductVariation::create([
+        return Variation::create([
             'product_id' => $product->id,
             'name' => $variationData['name'],
             'price_adjustment' => $variationData['price_adjustment'] ?? 0
@@ -147,7 +147,7 @@ class ProductService
     /**
      * Sync inventory for a variation
      */
-    private function syncVariationInventory(Product $product, ProductVariation $variation, int $quantity): void
+    private function syncVariationInventory(Product $product, Variation $variation, int $quantity): void
     {
         $variation->inventory()->updateOrCreate(
             ['product_id' => $product->id, 'variation_id' => $variation->id],
