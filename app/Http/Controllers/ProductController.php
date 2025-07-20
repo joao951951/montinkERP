@@ -3,120 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Variation;
-use App\Models\Inventory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function __construct(protected ProductService $productService ){}
+
+    public function index(Request $request)
     {
-        $products = Product::with(['inventory', 'variations.inventory'])
-            ->orderBy('name')
-            ->paginate(10);
+        $products = $this->productService->getProductList($request->all());
 
         return view('products.index', compact('products'));
     }
 
     public function create()
     {
-        return view('products.create');
+        return view('products.form');
     }
 
     public function store(Request $request)
     {
-        $validatedData = $this->validateRequest($request);
+        $validated = $request->validate($this->validationRules());
 
-        return DB::transaction(function () use ($validatedData) {
-            try {
-                $product = $this->createProduct($validatedData);
-                
-                $this->handleInventory($product, $validatedData);
-
-                return redirect()
-                    ->route('products.index')
-                    ->with('success', 'Produto cadastrado com sucesso!');
-
-            } catch (\Exception $e) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Erro ao cadastrar produto: ' . $e->getMessage());
-            }
-        });
-    }
-
-    /**
-     * Validates request
-     */
-    protected function validateRequest(Request $request): array
-    {
-        return $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'active' => 'boolean',
-            'quantity' => 'required|integer|min:0',
-            'variations' => 'nullable|array',
-            'variations.*.name' => 'required_with:variations|string|max:255',
-            'variations.*.price_adjustment' => 'nullable|numeric|min:0',
-            'variations.*.quantity' => 'required_with:variations|integer|min:0'
-        ]);
-    }
-
-    /**
-     * Create the product
-     */
-    protected function createProduct(array $validatedData): Product
-    {
-        return Product::create([
-            'name' => $validatedData['name'],
-            'price' => $validatedData['price'],
-            'active' => $validatedData['active'] ?? true
-        ]);
-    }
-
-    /**
-     * Gerencia o estoque do produto e variações
-     */
-    protected function handleInventory(Product $product, array $validatedData): void
-    {
-        if (empty($validatedData['variations'])) {
-            $this->createBaseInventory($product, $validatedData['quantity']);
-            return;
-        }
-
-        foreach ($validatedData['variations'] as $variationData) {
-            $this->createProductVariation($product, $variationData);
+        try {
+            $this->productService->createProduct($validated);
+            return redirect()->route('products.index')
+                ->with('success', 'Produto criado com sucesso!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Erro ao criar produto: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Cria o estoque base para produtos sem variações
-     */
-    protected function createBaseInventory(Product $product, int $quantity): void
+    public function edit(Product $product)
     {
-        Inventory::create([
-            'product_id' => $product->id,
-            'quantity' => $quantity
+        return view('products.form', [
+            'product' => $product->load(['variations.inventory', 'inventory'])
         ]);
     }
 
-    /**
-     * Cria uma variação do produto com seu estoque
-     */
-    protected function createProductVariation(Product $product, array $variationData): void
+    public function update(Request $request, Product $product)
     {
-        $variation = Variation::create([
-            'product_id' => $product->id,
-            'name' => $variationData['name'],
-            'price_adjustment' => $variationData['price_adjustment'] ?? 0
-        ]);
+        $validated = $request->validate($this->validationRules($product));
 
-        Inventory::create([
-            'product_id' => $product->id,
-            'variation_id' => $variation->id,
-            'quantity' => $variationData['quantity']
-        ]);
+        try {
+            $this->productService->updateProduct($product, $validated);
+            return redirect()->route('products.index')
+                ->with('success', 'Produto atualizado com sucesso!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Erro ao atualizar produto: ' . $e->getMessage());
+        }
     }
 
+    public function destroy(Product $product)
+    {
+        try {
+            $this->productService->deleteProduct($product);
+            return redirect()->route('products.index')
+                ->with('success', 'Produto removido com sucesso!');
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Erro ao remover produto: ' . $e->getMessage());
+        }
+    }
+
+    private function validationRules(?Product $product = null): array
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'active' => ['boolean'],
+            'quantity' => ['required_without:variations', 'integer', 'min:0'],
+            'variations' => ['nullable', 'array'],
+            'variations.*.name' => ['required_with:variations', 'string', 'max:255'],
+            'variations.*.price_adjustment' => ['nullable', 'numeric', 'min:0'],
+            'variations.*.quantity' => ['required_with:variations', 'integer', 'min:0'],
+        ];
+
+        $rules['name'][] = $product 
+            ? Rule::unique('products')->ignore($product->id)
+            : 'unique:products';
+
+        return $rules;
+    }
 }

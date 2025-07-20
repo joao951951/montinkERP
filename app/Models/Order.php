@@ -21,11 +21,6 @@ class Order extends Model
         'status'
     ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
@@ -34,10 +29,5 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
-    }
-
-    public function couponUsage(): HasOne
-    {
-        return $this->hasOne(CouponUsage::class);
     }
 }
