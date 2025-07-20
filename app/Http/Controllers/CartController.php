@@ -2,39 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Cart\CartManager;
-use App\Http\Controllers\Controller;
+use App\Http\Requests\CalculateShippingRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    protected $cartManager;
-
-    public function __construct(CartManager $cartManager)
-    {
-        $this->cartManager = $cartManager;
-    }
+    public function __construct(protected \App\Cart\CartManager $cartManager) {}
 
     public function index()
     {
-        $cartItems = $this->cartManager->getCart();
-        $cartTotal = $this->cartManager->getTotal();
-        
-        // Calcula o frete conforme as regras especificadas
-        if ($cartTotal >= 200) {
-            $shippingCost = 0;
-        } elseif ($cartTotal >= 52 && $cartTotal <= 166.59) {
-            $shippingCost = 15;
-        } else {
-            $shippingCost = 20;
-        }
+        $cartData = $this->cartManager->getCartWithShipping(session('shipping_cep'));
 
         return view('cart.index', [
-            'cartItems' => $cartItems,
-            'cartTotal' => $cartTotal,
-            'shippingCost' => $shippingCost
+            'cartItems' => $cartData['items'],
+            'cartTotal' => $cartData['subtotal'],
+            'shippingCost' => $cartData['shipping'],
+            'freeShippingThreshold' => $cartData['free_shipping_threshold'],
+            'missingForFreeShipping' => $cartData['missing_for_free_shipping']
         ]);
+    }
+
+    public function calculateShipping(Request $request)
+    {
+        $request->validate([
+            'cep' => 'required|string|max:10'
+        ]);
+
+        $cep = $request->input('cep');
+        
+        try {
+            $addressData = $this->cartManager->searchAddressByZipCode(str_replace('-', '', $cep));
+            
+            if ($addressData && !isset($addressData['erro'])) {
+                $address = sprintf(
+                    '%s, %s, %s/%s',
+                    $addressData['logradouro'],
+                    $addressData['bairro'],
+                    $addressData['localidade'],
+                    $addressData['uf']
+                );
+
+                session([
+                    'shipping_cep' => $cep,
+                    'shipping_address' => $address
+                ]);
+
+                return redirect()->route('cart.index')
+                    ->with('success', 'Frete calculado com sucesso!');
+            }
+
+            return redirect()->route('cart.index')
+                ->with('error', 'CEP não é válido ou não encontrado');
+
+        } catch (\Exception $e) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Erro ao calcular frete: ' . $e->getMessage());
+        }
     }
 
     public function remove($itemKey)
@@ -79,17 +103,12 @@ class CartController extends Controller
         }
     }
 
-    public function clearCart(Request $request)
+    public function clearCart()
     {
-        dd($request->all());
         try {
-            if ($this->cartManager->clearCart()) {
-                return redirect()->route('cart.index')
-                    ->with('success', 'Carrinho esvaziado com sucesso');
-            }
-
-            throw new \Exception('Não foi possível limpar o carrinho');
-
+            $this->cartManager->clearCart();
+            return redirect()->route('cart.index')
+                ->with('success', 'Carrinho esvaziado com sucesso');
         } catch (\Exception $e) {
             return redirect()->route('cart.index')
                 ->with('error', $e->getMessage());

@@ -31,4 +31,5 @@ Route::prefix('cart')->group(function () {
     Route::delete('/{itemKey}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/clearCart', [CartController::class, 'clearCart'])->name('cart.clearCart');
     Route::patch('/update/{itemKey}', [CartController::class, 'updateCartItem'])->name('cart.updateCartItem');
+    Route::post('calculateShipping', [CartController::class, 'calculateShipping'])->name('cart.calculateShipping');
 });

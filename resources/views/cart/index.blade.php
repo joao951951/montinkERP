@@ -92,10 +92,50 @@
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0 text-dark"><i class="bi bi-truck"></i> Calcular Frete</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('cart.calculateShipping') }}" method="POST">
+                    @csrf
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-6">
+                            <label for="cep" class="form-label">Digite seu CEP</label>
+                            <div class="input-group">
+                                <input type="text" 
+                                    class="form-control @error('cep') is-invalid @enderror" 
+                                    id="cep" 
+                                    name="cep" 
+                                    value="{{ old('cep', session('shipping_cep')) }}"
+                                    placeholder="00000-000"
+                                    required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-calculator"></i> Calcular Frete
+                                </button>
+                                @error('cep')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            @if(session('shipping_address'))
+                                <div class="alert alert-success mb-0 py-2">
+                                    <i class="bi bi-check-circle"></i> 
+                                    Frete calculado para: {{ session('shipping_address') }}
+                                    <div class="small">CEP: {{ session('shipping_cep') }}</div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         {{-- Incentivo para frete grátis --}}
-        @if($shippingCost > 0 && $cartTotal < 200)
+        @if($shippingCost > 0 && $missingForFreeShipping > 0)
             <div class="alert alert-info mt-3">
-                <i class="bi bi-info-circle"></i> Adicione mais R$ {{ number_format(200 - $cartTotal, 2, ',', '.') }} em produtos para ganhar frete grátis!
+                <i class="bi bi-info-circle"></i> Adicione mais R$ {{ number_format($missingForFreeShipping, 2, ',', '.') }} em produtos para ganhar frete grátis!
             </div>
         @endif
 

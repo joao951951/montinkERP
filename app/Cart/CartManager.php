@@ -2,13 +2,20 @@
 
 namespace App\Cart;
 
+use App\Services\ShippingService;
+use App\Services\ViaCepService;
+
 class CartManager
 {
     private string $sessionKey = 'shopping_cart';
+    private ShippingService $shippingService;
+    private ViaCepService $viaCepService;
 
-    public function __construct()
+    public function __construct(ShippingService $shippingService, ViaCepService $viaCepService)
     {
         $this->startSession();
+        $this->shippingService = $shippingService;
+        $this->viaCepService = $viaCepService;
     }
 
     private function startSession(): void
@@ -38,6 +45,7 @@ class CartManager
                 'name' => $itemData['name'],
                 'price' => $itemData['price'],
                 'quantity' => $itemData['quantity'],
+                'max_available' => $itemData['max_available'] ?? null,
             ];
         }
 
@@ -70,29 +78,42 @@ class CartManager
         }, 0);
     }
 
-    public function calculateShipping(float $subtotal): float
+    public function calculateShipping(?string $cep = null): float
     {
-        if ($subtotal >= 200.00) {
-            return 0.00;
-        } elseif ($subtotal >= 52.00 && $subtotal <= 166.59) {
-            return 15.00;
-        } else {
-            return 20.00;
-        }
+        return $this->shippingService->calculateShipping($this->getTotal(), $cep);
     }
 
-    public function getCartWithShipping(): array
+    public function getShippingData(?string $cep = null): array
     {
+        $shippingCost = $this->calculateShipping($cep);
         $subtotal = $this->getTotal();
-        $shipping = $this->calculateShipping($subtotal);
-        $total = $subtotal + $shipping;
+
+        return [
+            'subtotal' => $subtotal,
+            'shipping_cost' => $shippingCost,
+            'total' => $subtotal + $shippingCost,
+            'free_shipping_threshold' => 200,
+            'missing_for_free_shipping' => max(0, 200 - $subtotal),
+        ];
+    }
+
+    public function searchAddressByZipCode(string $cep): ?array
+    {
+        return $this->viaCepService->getAddresByCEP($cep);
+    }
+
+    public function getCartWithShipping(?string $cep = null): array
+    {
+        $shippingData = $this->getShippingData($cep);
 
         return [
             'items' => $this->getCart(),
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'total' => $total,
-            'currency' => 'BRL'
+            'subtotal' => $shippingData['subtotal'],
+            'shipping' => $shippingData['shipping_cost'],
+            'total' => $shippingData['total'],
+            'currency' => 'BRL',
+            'free_shipping_threshold' => $shippingData['free_shipping_threshold'],
+            'missing_for_free_shipping' => $shippingData['missing_for_free_shipping'],
         ];
     }
 

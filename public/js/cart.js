@@ -111,4 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
             button.innerHTML = '<i class="bi bi-arrow-repeat spin"></i>';
         });
     });
+
+    const cepInput = document.getElementById('cep');
+    if (cepInput) {
+        cepInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+            e.target.value = value;
+        });
+    }
 });
