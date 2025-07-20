@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Variation;
-use App\Exceptions\CartException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Session;
 
 class CartService
@@ -26,7 +26,9 @@ class CartService
     public function addItem(array $data): array
     {
         $product = Product::findOrFail($data['product_id']);
-        $variation = $data['variation_id'] 
+        $this->checkRequestIntegrity($product, $data);
+
+        $variation = isset($data['variation_id']) 
             ? Variation::where('id', $data['variation_id'])
                 ->where('product_id', $product->id)
                 ->firstOrFail()
@@ -54,7 +56,7 @@ class CartService
         $cart = $this->getCart();
 
         if (!array_key_exists($itemId, $cart)) {
-            throw new CartException('Item não encontrado no carrinho', 404);
+            throw ValidationException::withMessages(['Item não encontrado no carrinho', 404]);
         }
 
         unset($cart[$itemId]);
@@ -68,7 +70,7 @@ class CartService
             : ($product->inventory->quantity ?? 0);
 
         if ($quantity > $available) {
-            throw new CartException("Quantidade indisponível em estoque ($available disponíveis)");
+           throw ValidationException::withMessages(["Quantidade indisponível em estoque ($available disponíveis)"]);
         }
     }
 
@@ -107,5 +109,21 @@ class CartService
         return $item->variation 
             ? ($item->variation->inventory->quantity ?? 0)
             : ($item->product->inventory->quantity ?? 0);
+    }
+
+    private function checkRequestIntegrity(Product $product, array $data): void
+    {
+        if (!$product->active) {
+            throw ValidationException::withMessages(['Produto desabilitado para compra']);
+        }
+        if ($product->deleted_at) {
+            throw ValidationException::withMessages(['Produto removido']);
+        }
+
+        if($product->inventory->variation_id != null && $data['variation_id'] == null) {
+            throw ValidationException::withMessages(['Variação não informada']);
+        }
+
+        return;
     }
 }

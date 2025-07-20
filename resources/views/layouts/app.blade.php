@@ -37,11 +37,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('cart.view') }}">
+                            <a class="nav-link position-relative" href="{{ route('cart.index') }}">
                                 <i class="bi bi-cart"></i> Carrinho
-                                @if(count(session('cart', [])))
-                                    <span class="badge bg-danger">{{ count(session('cart', [])) }}</span>
-                                @endif
+                                <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                    style="{{ count(Session::get('cart', [])) ? '' : 'display: none;' }}">
+                                    {{ count(Session::get('cart', [])) }}
+                                </span>
                             </a>
                         </li>
                     </ul>

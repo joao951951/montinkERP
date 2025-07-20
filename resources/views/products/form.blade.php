@@ -18,7 +18,7 @@
     </div>
     <div class="card-body">
         <form method="POST" action="{{ isset($product) ? route('products.update', $product->id) : route('products.store') }}" id="product-form">
-            @csrf
+            <input id="_token" type="hidden" name="_token" value="{{ csrf_token() }}" />
             @if(isset($product))
                 @method('PUT')
             @endif
@@ -123,55 +123,10 @@
                     </div>
                 </div>
             </div>
+
             <!-- Adicionar produto ao carrinho -->
             @if(isset($product) && $product->active)
-                <hr class="my-4">
-                <h5 class="mb-3"><i class="bi bi-cart-plus"></i> Adicionar ao Carrinho</h5>
-                
-                <form method="POST" action="{{ route('cart.add', $product) }}" class="row g-3">
-                    @csrf
-                    
-                    @if($product->variations->count() > 0)
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <select class="form-select" id="variation_id" name="variation_id" required>
-                                    <option value="">Selecione uma variação</option>
-                                    @foreach($product->variations as $variation)
-                                        <option value="{{ $variation->id }}" 
-                                            data-quantity="{{ $variation->inventory->quantity ?? 0 }}">
-                                            {{ $variation->name }} 
-                                            (Estoque: {{ $variation->inventory->quantity ?? 0 }})
-                                            @if($variation->price_adjustment)
-                                                ({{ $variation->price_adjustment > 0 ? '+' : '' }}{{ number_format($variation->price_adjustment, 2, ',', '.') }})
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <label for="variation_id">Variação*</label>
-                            </div>
-                        </div>
-                    @else
-                        <input type="hidden" name="variation_id" value="">
-                        <div class="col-12">
-                            <p>Estoque disponível: {{ $product->inventory->quantity ?? 0 }}</p>
-                        </div>
-                    @endif
-                    
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <input type="number" class="form-control" id="quantity" name="quantity" 
-                                value="1" min="1" required
-                                max="{{ $product->variations->count() ? '' : ($product->inventory->quantity ?? 1) }}">
-                            <label for="quantity">Quantidade*</label>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-cart-plus"></i> Comprar
-                        </button>
-                    </div>
-                </form>
+                @include('components.buttons.addtocart')
             @endif
             <!-- Adicionar produto ao carrinho -->
 
@@ -224,4 +179,5 @@
 
 @push('scripts')
 <script src="{{ asset('js/products.js') }}"></script>
+<script src="{{ asset('js/cart.js') }}"></script>
 @endpush
