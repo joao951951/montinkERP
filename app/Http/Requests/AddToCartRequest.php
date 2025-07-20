@@ -23,15 +23,8 @@ class AddToCartRequest extends FormRequest
     {
         return [
             'product_id' => 'required|exists:products,id',
-            'variation_id' => 'nullable|exists:variations,id,product_id,'.$this->product_id,
-            'quantity' => 'required|integer|min:1'
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'variation_id.exists' => 'A variação selecionada não pertence a este produto'
+            'variation_id' => 'nullable|exists:variations,id',
+            'quantity' => 'required|integer|min:1|max:100'
         ];
     }
 }

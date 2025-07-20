@@ -1,6 +1,6 @@
 <hr class="my-4">
 <h5 class="mb-3"><i class="bi bi-cart-plus"></i> Comprar Produto</h5>
-<div id="buy-section" class="row g-3" data-cart-add-url="{{ route('cart.add') }}" data-product-id="{{ $product->id }}">
+<div id="buy-section" class="row g-3" data-cart-add-url="{{ route('cart.store') }}" data-product-id="{{ $product->id }}">
     @if($product->variations->count() > 0)
         <div class="col-md-6">
             <div class="form-floating">

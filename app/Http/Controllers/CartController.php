@@ -2,42 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CartService;
-use App\Http\Requests\AddToCartRequest;
-use Illuminate\Http\JsonResponse;
+use App\Cart\CartManager;
+use App\Http\Controllers\Controller;
 
 class CartController extends Controller
 {
-    public function __construct(private CartService $cartService) {}
+    protected $cartManager;
 
-    public function show(): JsonResponse
+    public function __construct(CartManager $cartManager)
     {
-        return response()->json([
-            'cart' => $this->cartService->getCart(),
-            'total' => $this->cartService->getTotal()
-        ]);
+        $this->cartManager = $cartManager;
     }
 
-    public function addItem(AddToCartRequest $request): JsonResponse
+    public function index()
     {
-        $item = $this->cartService->addItem(
-            $request->validated()
-        );
+        // dd($this->cartManager->getCart());
+        $cartItems = $this->cartManager->getCart();
+        $cartTotal = $this->cartManager->getTotal();
+        $itemCount = count($cartItems);
 
-        return response()->json([
-            'message' => 'Item adicionado ao carrinho',
-            'item' => $item,
-            'cart_total' => $this->cartService->getTotal()
-        ], 201);
-    }
-
-    public function removeItem(string $itemId): JsonResponse
-    {
-        $this->cartService->removeItem($itemId);
-
-        return response()->json([
-            'message' => 'Item removido do carrinho',
-            'cart_total' => $this->cartService->getTotal()
+        return view('cart.index', [
+            'cartItems' => $cartItems,
+            'cartTotal' => $cartTotal,
+            'itemCount' => $itemCount
         ]);
     }
 }

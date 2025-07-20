@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CartController;
+use App\Http\Controllers\Api\ApiCartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +16,10 @@ use App\Http\Controllers\CartController;
 */
 
 Route::prefix('cart')->group(function () {
-    Route::get('/', [CartController::class, 'show'])->name('cart.show');
-    Route::post('/', [CartController::class, 'addItem'])->name('cart.add');
-    Route::delete('/{itemId}', [CartController::class, 'removeItem'])->name('cart.remove');
+    Route::get('/getCart', [ApiCartController::class, 'index'])->name('cart.getCart');
+    Route::post('/items', [ApiCartController::class, 'store'])->name('cart.store');
+    Route::put('/items/{itemKey}', [ApiCartController::class, 'update'])->name('cart.update');
+    Route::delete('/items/{itemKey}', [ApiCartController::class, 'destroy'])->name('cart.destroy');
+    Route::delete('/clear', [ApiCartController::class, 'clear'])->name('cart.clear');
+    Route::delete('/removeItem/{itemKey}', [ApiCartController::class, 'removeItem'])->name('cart.remove');
 });
