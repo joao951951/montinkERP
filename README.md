@@ -45,13 +45,20 @@ DB_DATABASE=nome_do_banco
 DB_USERNAME=seu_usuario
 DB_PASSWORD=sua_senha
 ```
-5. Inicie o servidor
+
+5. Rode as migrações
+
+```bash
+php artisan migrate
+```
+
+6. Inicie o servidor
 
 ```bash
 php artisan serve
 ```
 
-6. Tudo certo agora a aplicação está disponível basta acessar
+7. Tudo certo agora a aplicação está disponível basta acessar
 
 ```
 http://localhost:8000
