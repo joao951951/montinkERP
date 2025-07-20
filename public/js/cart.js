@@ -89,4 +89,26 @@ class CartHandler {
 
 document.addEventListener('DOMContentLoaded', () => {
     new CartHandler();
+
+    document.querySelectorAll('input[name="quantity"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const min = parseInt(this.getAttribute('min'));
+            let value = parseInt(this.value);
+            
+            if (isNaN(value)) value = min;
+            if (value < min) value = min;
+            if (value > max) value = max;
+            
+            this.value = value;
+        });
+    });
+
+    document.querySelectorAll('form[action*="updateCartItem"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('button[type="submit"]');
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-arrow-repeat spin"></i>';
+        });
+    });
 });

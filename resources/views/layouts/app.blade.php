@@ -27,17 +27,17 @@
                 <div class="p-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">
+                            <a class="nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}" href="{{ route('products.index') }}">
                                 <i class="bi bi-box"></i> Produtos
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link">
                                 <i class="bi bi-clipboard-data"></i> Estoque
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link position-relative" href="{{ route('cart.index') }}">
+                            <a class="nav-link position-relative {{ request()->routeIs('cart.index') ? 'active' : '' }}" href="{{ route('cart.index') }}">
                                 <i class="bi bi-cart"></i> Carrinho
                                 <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
                                     style="{{ count(Session::get('cart', [])) ? '' : 'display: none;' }}">

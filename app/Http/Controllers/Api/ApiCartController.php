@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Cart\CartManager;
-use App\Http\Requests\AddToCartRequest;
+use App\Http\Requests\Api\AddToCartRequest;
+use App\Http\Requests\Api\UpdateCartRequest;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +14,7 @@ class ApiCartController extends Controller
 {
     public function __construct(private CartManager $cart) {}
 
-    public function index(): JsonResponse
+    public function getCartItems(): JsonResponse
     {
         return response()->json([
             'success' => true,
@@ -38,6 +39,7 @@ class ApiCartController extends Controller
         $item = $this->cart->addItem([
             'product_id' => $product->id,
             'variation_id' => $variation?->id,
+            'variation_name' => $variation?->name,
             'name' => $product->name,
             'price' => $this->calculatePrice($product, $variation),
             'quantity' => $request->quantity,

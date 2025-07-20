@@ -16,10 +16,8 @@ use App\Http\Controllers\Api\ApiCartController;
 */
 
 Route::prefix('cart')->group(function () {
-    Route::get('/getCart', [ApiCartController::class, 'index'])->name('cart.getCart');
-    Route::post('/items', [ApiCartController::class, 'store'])->name('cart.store');
-    Route::put('/items/{itemKey}', [ApiCartController::class, 'update'])->name('cart.update');
-    Route::delete('/items/{itemKey}', [ApiCartController::class, 'destroy'])->name('cart.destroy');
-    Route::delete('/clear', [ApiCartController::class, 'clear'])->name('cart.clear');
-    Route::delete('/removeItem/{itemKey}', [ApiCartController::class, 'removeItem'])->name('cart.remove');
+    Route::get('/getCartItems', [ApiCartController::class, 'getCartItems'])->name('cart.getCartItems');
+    Route::post('/addCartItem', [ApiCartController::class, 'store'])->name('cart.addCartItem');
+    Route::patch('/updateCartItem/{itemKey}', [ApiCartController::class, 'update'])->name('cart.updateCartItem');
+    Route::delete('/removeItem/{itemKey}', [ApiCartController::class, 'destroy'])->name('cart.removeItem');
 });

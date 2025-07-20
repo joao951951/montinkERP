@@ -26,4 +26,9 @@ Route::prefix('products')->group(function () {
     Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 });
 
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::delete('/{itemKey}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/clearCart', [CartController::class, 'clearCart'])->name('cart.clearCart');
+    Route::patch('/update/{itemKey}', [CartController::class, 'updateCartItem'])->name('cart.updateCartItem');
+});
