@@ -4,7 +4,7 @@
     @if($product->variations->count() > 0)
         <div class="col-md-6">
             <div class="form-floating">
-                <select class="form-select" id="cart-variation" name="variation_id" required>
+                <select class="form-select" id="cart-variation" name="variation_id">
                     <option value="">Selecione uma variação</option>
                     @foreach($product->variations as $variation)
                         <option value="{{ $variation->id }}" 
@@ -30,8 +30,7 @@
         <div class="form-floating">
             <input type="number" class="form-control" id="cart-quantity" 
                     name="quantity" value="1" min="1" 
-                    max="{{ $product->variations->count() ? '' : ($product->inventory->quantity ?? 1) }}"
-                    required>
+                    max="{{ $product->variations->count() ? '' : ($product->inventory->quantity ?? 1) }}">
             <label for="cart-quantity">Quantidade*</label>
         </div>
     </div>

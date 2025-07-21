@@ -17,7 +17,7 @@ use App\Http\Controllers\Api\ApiCartController;
 
 Route::prefix('cart')->group(function () {
     Route::get('/getCartItems', [ApiCartController::class, 'getCartItems'])->name('cart.getCartItems');
-    Route::post('/addCartItem', [ApiCartController::class, 'store'])->name('cart.addCartItem');
+    Route::post('/store', [ApiCartController::class, 'store'])->name('cart.store');
     Route::patch('/updateCartItem/{itemKey}', [ApiCartController::class, 'update'])->name('cart.updateCartItem');
     Route::delete('/removeItem/{itemKey}', [ApiCartController::class, 'destroy'])->name('cart.removeItem');
 });
