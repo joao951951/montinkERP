@@ -22,7 +22,7 @@ Sistema ERP com:
 1. Clone o repositório:
 ```bash
 git clone https://github.com/joao951951/montinkERP.git
-cd ecommerce-laravel
+cd montinkERP
 ```
 2. Instale as dependências PHP
 
@@ -46,7 +46,7 @@ DB_USERNAME=seu_usuario
 DB_PASSWORD=sua_senha
 ```
 
-5. Rode as migrações
+5. Rode as migrações para criar as tabelas no banco de dados
 
 ```bash
 php artisan migrate
